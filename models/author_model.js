@@ -1,16 +1,20 @@
 import mongoose from "mongoose";
-const author_schema = mongoose.Schema({
-  fname: { type: String, lowerCase: true, trim: true, required: true },
-  lname: { type: String, lowerCase: true, trim: true, required: true },
-  title: {
-    type: String,
-    enum: ["Mr", "Mrs", "Miss"],
-    trim: true,
-    required: true,
+const author_schema = mongoose.Schema(
+  {
+    fname: { type: String, lowerCase: true, trim: true, required: true },
+    lname: { type: String, lowerCase: true, trim: true, required: true },
+    title: {
+      type: String,
+      enum: ["Mr", "Mrs", "Miss"],
+      trim: true,
+      required: true,
+    },
+    email: { type: String, unique: true, required: true },
+    password: { type: String, required: true },
+    isDeleted: { type: Boolean, default: false },
   },
-  email: { type: String, unique: true },
-  password: { type: String, required: true },
-});
+  { timestamps: true }
+);
 
 const author = new mongoose.model("author", author_schema);
 export default author;
