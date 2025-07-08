@@ -81,7 +81,7 @@ export const get_all_author = async (req, res) => {
 
     return res
       .status(200)
-      .send({ status: true, msg: "List of author", data: get_author });
+      .send({ status: true, msg: "List of authors", data: get_author });
 
   } catch (err) {
     return res.status(500).send({ status: false, msg: err.message });
