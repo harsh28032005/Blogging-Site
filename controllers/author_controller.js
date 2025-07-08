@@ -70,19 +70,22 @@ export const create_author = async (req, res) => {
 
 export const get_all_author = async (req, res) => {
   try {
-    let { fname } = req.query;
+    let { fname, search } = req.query;
     let filter = { isDeleted: false };
 
     if (fname) {
       filter.fname = fname;
     }
-
-    let get_author = await author.find(filter).select({_id: true, fname: true});
+    if (search) {
+      filter.fname = { $regex: search, $options: "i" };
+    }
+    let get_author = await author
+      .find(filter)
+      .select({ _id: true, fname: true });
 
     return res
       .status(200)
-      .send({ status: true, msg: "List of author", data: get_author });
-
+      .send({ status: true, msg: "List of authors", data: get_author });
   } catch (err) {
     return res.status(500).send({ status: false, msg: err.message });
   }
