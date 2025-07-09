@@ -1,7 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
 import "dotenv/config";
-import router from "./routes/author.js";
+import author from "./routes/author.js";
+import blog from "./routes/blog.js";
 
 const app = express();
 
@@ -12,7 +13,11 @@ const url = process.env.MONGO_URL;
 mongoose
   .connect(url)
   .then(() => console.log("MongoDB Database is connected successfully..."))
-  .catch((err) => console.log("Error to connect MongoDB Database...",err));
+  .catch((err) => console.log("Error to connect MongoDB Database...", err));
 
-app.use("",router)
-app.listen(process.env.PORT, () => console.log(`Server is running on the port ${process.env.PORT}`))
+app.use("", author);
+app.use("", blog);
+
+app.listen(process.env.PORT, () =>
+  console.log(`Server is running on the port ${process.env.PORT}`)
+);
