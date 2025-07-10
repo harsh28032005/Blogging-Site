@@ -4,7 +4,7 @@ import blog from "../models/blog_model.js";
 
 export const create_blog = async (req, res) => {
   try {
-    let { title, body, authorId, tags, category, subcategory } = req.body;
+    let { title, body, author_id, tags, category, subcategory } = req.body;
 
     if (!title)
       return res.status(400).send({ status: false, msg: "Title is required" });
@@ -18,14 +18,14 @@ export const create_blog = async (req, res) => {
     if (!isNaN(body))
       return res.status(400).send({ status: false, msg: "Invalid Body" });
 
-    if (!authorId)
+    if (!author_id)
       return res.status(400).send({ status: false, msg: "author is required" });
 
-    if (!mongoose.Types.ObjectId.isValid(authorId))
+    if (!mongoose.Types.ObjectId.isValid(author_id))
       return res.status(400).send({ status: false, msg: "Invalid author" });
 
     let is_author_exist = await author.findOne({
-      _id: authorId,
+      _id: author_id,
       isDeleted: false,
     });
 
@@ -91,3 +91,28 @@ export const create_blog = async (req, res) => {
     return res.status(500).send({ status: false, msg: err.message });
   }
 };
+
+export const get_blog = async (req, res) => {
+  try {
+    let get_blog_data = await blog.find({
+      isDeleted: false,
+      isPublished: true,
+    });
+    if (get_blog_data.length) {
+      return res
+        .status(200)
+        .send({ status: true, msg: "List of Blogs", data: get_blog_data });
+    }
+    else{
+      return res.status(404).send({status: false, msg: "No data found"})
+    }
+  } catch (err) {
+    return res.status(500).send({ status: false, msg: err.message });
+  }
+};
+
+// export const update_blog = async (req, res) => {
+//   let {title, body, tags, subcategory} = req.body
+//   let {blog_id} = req.params
+//   if(!blog_id && {isDeleted:false})
+// }
