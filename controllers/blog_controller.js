@@ -96,7 +96,7 @@ export const get_blog = async (req, res) => {
   try {
     let get_blog_data = await blog.find({
       isDeleted: false,
-      // isPublished: true,
+      isPublished: true,
     });
     if (get_blog_data.length) {
       return res
