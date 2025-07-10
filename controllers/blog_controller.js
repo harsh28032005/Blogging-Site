@@ -96,23 +96,69 @@ export const get_blog = async (req, res) => {
   try {
     let get_blog_data = await blog.find({
       isDeleted: false,
-      isPublished: true,
+      // isPublished: true,
     });
     if (get_blog_data.length) {
       return res
         .status(200)
         .send({ status: true, msg: "List of Blogs", data: get_blog_data });
-    }
-    else{
-      return res.status(404).send({status: false, msg: "No data found"})
+    } else {
+      return res.status(404).send({ status: false, msg: "No data found" });
     }
   } catch (err) {
     return res.status(500).send({ status: false, msg: err.message });
   }
 };
 
-// export const update_blog = async (req, res) => {
-//   let {title, body, tags, subcategory} = req.body
-//   let {blog_id} = req.params
-//   if(!blog_id && {isDeleted:false})
-// }
+export const update_blog = async (req, res) => {
+  let { title, body, tags, subcategory } = req.body;
+  let { blog_id } = req.params;
+
+  if (!blog_id)
+    return res.status(400).send({ status: false, msg: "Blog id is required" });
+
+  if (!mongoose.Types.ObjectId.isValid(blog_id))
+    return res.status(400).send({ status: false, msg: "Invalid Blog id" });
+
+  let is_blog_exist = await blog.findOne({ _id: blog_id, isDeleted: false });
+
+  if (!is_blog_exist)
+    return res
+      .status(404)
+      .send({ status: false, msg: "No Blog found to update" });
+
+  if (req.body.hasOwnProperty("title") && !isNaN(title)) {
+    return res.status(400).send({ status: false, msg: "Invalid blog title" });
+  }
+  if (req.body.hasOwnProperty("body") && !isNaN(body)) {
+    return res.status(400).send({ status: false, msg: "Invalid blog body" });
+  }
+  if (req.body.hasOwnProperty("tags") && !isNaN(tags)) {
+    return res.status(400).send({ status: false, msg: "Invalid blog tags" });
+  }
+  if (req.body.hasOwnProperty("subcategory") && !isNaN(subcategory)) {
+    return res
+      .status(400)
+      .send({ status: false, msg: "Invalid blog subcategory" });
+  }
+
+  let update_blog_data = await blog.findOneAndUpdate(
+    { _id: blog_id, isDeleted: false }, // filter
+    {
+      $set: {
+        title: title,
+        body: body,
+        isPublished: true,
+        publishedAt: new Date(),
+      },
+      $push: { tags: tags, subcategory: subcategory },
+    }, // fields to be update
+    { new: true }
+  );
+
+  return res.status(200).send({
+    status: true,
+    msg: "Blog updated successfully",
+    data: update_blog_data,
+  });
+};
