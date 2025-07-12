@@ -94,10 +94,27 @@ export const create_blog = async (req, res) => {
 
 export const get_blog = async (req, res) => {
   try {
-    let get_blog_data = await blog.find({
+    let { author_id, category, tags, subcategory } = req.query;
+    let filter = {
       isDeleted: false,
       isPublished: true,
-    });
+    };
+
+    if (author_id) {
+      filter.author_id = author_id;
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+    if (tags) {
+      filter.tags = {$in : tags.split(",")};
+    }
+    if (subcategory) {
+      filter.subcategory = {$in : subcategory.split(",")};
+    }
+
+    let get_blog_data = await blog.find(filter);
     if (get_blog_data.length) {
       return res
         .status(200)
