@@ -108,10 +108,10 @@ export const get_blog = async (req, res) => {
       filter.category = category;
     }
     if (tags) {
-      filter.tags = {$in : tags.split(",")};
+      filter.tags = { $in: tags.split(",") };
     }
     if (subcategory) {
-      filter.subcategory = {$in : subcategory.split(",")};
+      filter.subcategory = { $in: subcategory.split(",") };
     }
 
     let get_blog_data = await blog.find(filter);
@@ -178,4 +178,38 @@ export const update_blog = async (req, res) => {
     msg: "Blog updated successfully",
     data: update_blog_data,
   });
+};
+
+export const delete_blog = async (req, res) => {
+  try {
+    let { blog_id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(blog_id))
+      return res.status(400).send({ status: false, msg: "Invalid blog_id" });
+
+    let is_blog_exist = await blog.findOne({ _id: blog_id});
+
+    if (is_blog_exist.isDeleted)
+      return res
+        .status(400)
+        .send({ status: false, msg: "Blog is already deleted" });
+
+    if (!is_blog_exist)
+      return res
+        .status(404)
+        .send({ status: false, msg: "No blog found to delete" });
+
+    let deleted_blog = await blog.findOneAndUpdate(
+      { _id: blog_id, isDeleted: false },
+      { $set: { isDeleted: true, deletedAt: new Date() } },
+      { new: true }
+    );
+
+    return res.status(200).send({
+      status: true,
+      msg: "blog is deleted successfully",
+      data: deleted_blog,
+    });
+  } catch (err) {
+    return res.status(500).send({ status: false, msg: err.message });
+  }
 };

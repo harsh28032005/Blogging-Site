@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const author_schema = mongoose.Schema(
+const author_schema = new mongoose.Schema(
   {
     fname: { type: String, lowerCase: true, trim: true, required: true },
     lname: { type: String, lowerCase: true, trim: true, required: true },
