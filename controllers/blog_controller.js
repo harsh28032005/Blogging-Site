@@ -186,7 +186,7 @@ export const delete_blog = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(blog_id))
       return res.status(400).send({ status: false, msg: "Invalid blog_id" });
 
-    let is_blog_exist = await blog.findOne({ _id: blog_id});
+    let is_blog_exist = await blog.findOne({ _id: blog_id });
 
     if (is_blog_exist.isDeleted)
       return res
@@ -209,6 +209,70 @@ export const delete_blog = async (req, res) => {
       msg: "blog is deleted successfully",
       data: deleted_blog,
     });
+  } catch (err) {
+    return res.status(500).send({ status: false, msg: err.message });
+  }
+};
+
+export const delete_blog_by_query = async (req, res) => {
+  try {
+    let { author_id, tag, category, subcategory, isPublished } = req.query;
+
+    let query = { isDeleted: false };
+
+    const standardQuery = JSON.parse(JSON.stringify(req.query));
+
+    if (standardQuery.hasOwnProperty("author_id")) {
+      if (!mongoose.Types.ObjectId.isValid(author_id))
+        return res
+          .status(400)
+          .send({ status: false, msg: "Invalid author_id" });
+      else query["author_id"] = author_id;
+    }
+
+    if (standardQuery.hasOwnProperty("category")) {
+      if (!isNaN(category))
+        return res.status(400).send({ status: false, msg: "Invalid category" });
+      else query["category"] = category;
+    }
+
+    if (standardQuery.hasOwnProperty("tag")) {
+      if (!isNaN(tag))
+        return res.status(400).send({ status: false, msg: "Invalid tag" });
+      else query["tags"] = { $in: tag };
+    }
+
+    if (standardQuery.hasOwnProperty("subcategory")) {
+      if (!isNaN(subcategory))
+        return res
+          .status(400)
+          .send({ status: false, msg: "Invalid subcategory" });
+      else query["subcategory"] = { $in: subcategory };
+    }
+
+    if (standardQuery.hasOwnProperty("isPublished")) {
+      if (isPublished !== "true" && isPublished !== "false")
+        return res
+          .status(400)
+          .send({ status: false, msg: "isPublished should be boolean value." });
+      else query["isPublished"] = isPublished;
+    }
+    // console.log(query, "query");
+    let deleted_blogs = await blog.updateMany(
+      query, // search query
+      { $set: { isDeleted: true, deletedAt: new Date() } } // update operation
+    );
+
+    if (deleted_blogs.matchedCount == 0)
+      return res
+        .status(404)
+        .send({ status: false, msg: "No blogs found to delete" });
+    else
+      return res.status(200).send({
+        status: true,
+        msg: "Blogs deleted successfully",
+        data: deleted_blogs,
+      });
   } catch (err) {
     return res.status(500).send({ status: false, msg: err.message });
   }
