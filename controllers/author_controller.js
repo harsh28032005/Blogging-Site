@@ -123,8 +123,8 @@ export const login = async (req, res) => {
     let token = jwt.sign(
       {
         author_id: check_author._id,
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 2 * 60,
+        iat: Math.floor(Date.now() / 1000), // iat-> issued at time in seconds
+        exp: Math.floor(Date.now() / 1000) + 2 * 60, // exp-> expiration time in seconds (2 minutes from now)
       },
       process.env.JWT_SECRET_KEY
     );
