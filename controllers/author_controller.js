@@ -128,7 +128,7 @@ export const login = async (req, res) => {
       },
       process.env.JWT_SECRET_KEY
     );
-
+    // res.setHeader("access_token", token)
     return res.status(200).send({
       status: true,
       msg: "Author logged in successfully",
